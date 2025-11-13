@@ -1,0 +1,378 @@
+<div class="min-h-screen bg-gray-900 text-gray-100 font-sans">
+  <main [class.lg:pr-[28rem]]="isSidebarVisible()">
+   <div class="sticky top-0 z-30 bg-gray-900/80 backdrop-blur-lg border-b border-gray-700/50">
+      <div class="px-4 sm:px-6 lg:px-8">
+        
+        <header class="flex justify-between items-center pt-6 pb-4">
+          <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Java Roast &amp; Grill</h1>
+            <p class="text-gray-400">Full-Stack Ordering System</p>
+          </div>
+          
+          <div>
+            <button (click)="openMobileCart()" class="relative text-gray-300 hover:text-white transition-colors lg:hidden">
+              <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.51 0 .962.343 1.087.835l.383 1.437M7.5 14.25V5.106c0-.612.501-1.106 1.106-1.106h5.788c.612 0 1.106.501 1.106 1.106v9.144M7.5 14.25h1.875a3 3 0 0 1 3-3h.375a3 3 0 0 1 3 3h-1.875" />
+              </svg>
+              @if (cartCount() > 0) {
+                <span class="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-fade-in">
+                  {{ cartCount() }}
+                </span>
+              }
+            </button>
+            
+            <button (click)="toggleSidebar()" class="relative text-gray-300 hover:text-white transition-colors hidden lg:block">
+  <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.51 0 .962.343 1.087.835l.383 1.437M7.5 14.25V5.106c0-.612.501-1.106 1.106-1.106h5.788c.612 0 1.106.501 1.106 1.106v9.144M7.5 14.25h1.875a3 3 0 0 1 3-3h.375a3 3 0 0 1 3 3h-1.875" />
+  </svg>
+  @if (cartCount() > 0) {
+    <span class="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-fade-in">
+      {{ cartCount() }}
+    </span>
+  }
+</button>
+          </div>
+        </header>
+
+         <div class="pb-4 flex flex-col sm:flex-row gap-4 items-center">
+          <div class="relative flex-grow w-full">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              [ngModel]="searchTerm()" 
+              (ngModelChange)="searchTerm.set($event)"
+              placeholder="Search for a dish..."
+              class="w-full bg-gray-800 text-white rounded-lg px-4 py-3 pl-10 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            @if (searchTerm()) {
+              <button (click)="searchTerm.set('')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                </svg>
+              </button>
+            }
+          </div>
+          
+          <div class="relative w-full sm:w-72 flex-shrink-0" [class.hidden]="searchTerm().trim()">
+            <button (click)="toggleCategoryDropdown()" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <span class="text-white">{{ selectedCategory() || 'Select a category' }}</span>
+              <svg class="w-5 h-5 text-gray-400 transition-transform" [class.rotate-180]="isCategoryDropdownOpen()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+              </svg>
+            </button>
+    
+            @if (isCategoryDropdownOpen()) {
+              <div class="absolute z-10 mt-2 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg animate-fade-in">
+                <ul class="py-1 max-h-60 overflow-y-auto">
+                  @for (category of menu(); track category.name) {
+                    <li>
+                      <button (click)="selectCategory(category.name)" class="w-full text-left px-4 py-2 text-gray-300 hover:bg-indigo-600 hover:text-white">
+                        {{ category.name }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
+      
+      @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center text-gray-400 p-8 h-96">
+          <svg class="animate-spin h-10 w-10 text-indigo-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-xl font-semibold">Fetching the freshest dishes...</p>
+        </div>
+      } 
+      
+      @else if (error()) {
+        <div class="bg-red-900/50 border border-red-700 text-red-300 p-6 rounded-lg text-center">
+          <h3 class="font-bold text-xl mb-2">Oops! Something went wrong.</h3>
+          <p class="mb-4">{{ error() }}</p>
+          <button (click)="retryLoadMenu()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg">
+            Try Again
+          </button>
+        </div>
+      } 
+      
+      @else {
+        @if (searchTerm().trim()) {
+          <div class="mb-6 pb-2 border-b border-gray-700">
+            <h2 class="text-xl font-bold text-white">Search Results for "{{ searchTerm() }}"</h2>
+            <p class="text-gray-400 text-sm">Found {{ filteredMenu().length }} matching items.</p>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (item of filteredMenu(); track item.id) {
+            <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 flex flex-col transition-all duration-300 hover:shadow-indigo-500/20 hover:border-indigo-500/50 hover:-translate-y-1">
+              <img [src]="item.imageUrl" alt="{{ item.name }}" class="w-full h-48 object-cover">
+              <div class="p-4 flex flex-col flex-grow">
+                <h3 class="text-xl font-bold text-white mb-2">{{ item.name }}</h3>
+                <p class="text-gray-400 text-sm flex-grow">{{ item.description }}</p>
+                <div class="flex justify-between items-center mt-4">
+                  <span class="text-lg font-semibold text-indigo-400">${{ item.price.toFixed(2) }}</span>
+                  <button (click)="addToCart(item)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-2 rounded-full">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+          
+          @if (filteredMenu().length === 0 && searchTerm().trim()) {
+            <div class="col-span-full text-center py-16 bg-gray-800/50 rounded-lg">
+              <svg class="w-16 h-16 mx-auto text-gray-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <h3 class="text-xl font-semibold text-white">No dishes found</h3>
+              <p class="text-gray-400 mt-2">We couldn't find any items matching "{{ searchTerm() }}".</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </main>
+
+  @if (isSidebarVisible()) {
+    <div (click)="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden lg:block animate-fade-in"></div>
+  }
+
+  <aside class="fixed top-0 right-0 h-full w-full max-w-md bg-gray-900 border-l border-gray-700 p-6 flex-col z-50 transition-transform duration-300 ease-in-out transform hidden lg:flex" [class.translate-x-0]="isSidebarVisible()" [class.translate-x-full]="!isSidebarVisible()">
+    
+    <div class="flex justify-between items-center flex-shrink-0">
+      <h2 class="text-2xl font-bold text-white">Your Order</h2>
+      <button (click)="toggleSidebar()" class="text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex flex-col min-h-0 flex-grow mt-6">
+      
+      <div class="flex-shrink-0">
+        @if (cart().length === 0) {
+          <div class="flex flex-col items-center justify-center text-gray-500 p-8 rounded-lg bg-gray-800">
+            <svg class="w-24 h-24 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.51 0 .962.343 1.087.835l.383 1.437M7.5 14.25V5.106c0-.612.501-1.106 1.106-1.106h5.788c.612 0 1.106.501 1.106 1.106v9.144M7.5 14.25h1.875a3 3 0 0 1 3-3h.375a3 3 0 0 1 3 3h-1.875" />
+            </svg>
+            <p class="text-lg">Your cart is empty.</p>
+          </div>
+        } @else {
+          <div class="max-h-[30vh] overflow-y-auto -mr-3 pr-3">
+            <ul class="space-y-4">
+              @for (item of cart(); track item.id) {
+                <li class="flex items-center space-x-4 bg-gray-800 p-3 rounded-lg">
+                  <img [src]="item.imageUrl" alt="{{item.name}}" class="w-16 h-16 rounded-md object-cover">
+                  <div class="flex-1">
+                    <p class="font-semibold text-white">{{ item.name }}</p>
+                    <p class="text-sm text-indigo-400">${{ item.price.toFixed(2) }}</p>
+                  </div>
+                  <div class="flex items-center space-x-2 bg-gray-700 rounded-full">
+                    <button (click)="updateQuantity(item.id, -1)" class="p-1 text-gray-300 hover:text-white">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" /></svg>
+                    </button>
+                    <span class="px-2 font-bold text-white">{{ item.quantity }}</span>
+                    <button (click)="updateQuantity(item.id, 1)" class="p-1 text-gray-300 hover:text-white">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-700">
+            <div class="flex justify-between items-center text-gray-300 mb-2">
+              <span>Subtotal</span>
+              <span>${{ cartTotal().toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-300 mb-4">
+              <span>Taxes & Fees (10%)</span>
+              <span>${{ (cartTotal() * 0.1).toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-white font-bold text-xl mb-4">
+              <span>Total</span>
+              <span>${{ (cartTotal() * 1.1).toFixed(2) }}</span>
+            </div>
+            <button (click)="placeOrder()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg text-lg">
+              Place Order
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="my-6 border-t border-gray-700 flex-shrink-0"></div>
+
+      <div class="flex-grow flex flex-col min-h-0">
+        <h2 class="text-2xl font-bold text-white mb-6 flex-shrink-0">Order History</h2>
+        @if (orderHistory().length === 0) {
+          <div class="flex-grow flex flex-col items-center justify-center text-gray-500 text-center">
+            <svg class="w-16 h-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <p>Your past orders will appear here.</p>
+          </div>
+        } @else {
+          <div class="overflow-y-auto -mr-3 pr-3">
+            <ul class="space-y-4">
+              @for (order of orderHistory(); track order.id) {
+                <li class="bg-gray-800 p-4 rounded-lg animate-fade-in">
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="font-semibold text-white text-sm">{{ formatDate(order.date) }}</span>
+                    <span class="font-bold text-indigo-400">${{ order.total.toFixed(2) }}</span>
+                  </div>
+                  <ul class="ml-4 mt-2 space-y-1 border-l border-gray-700 pl-4">
+                    @for(item of order.items; track item.id) {
+                      <li class="text-sm text-gray-400">
+                        <span class="font-semibold text-gray-300">{{ item.quantity }}x</span> {{ item.name }}
+                      </li>
+                    }
+                  </ul>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </div>
+  </aside>
+
+  @if (isMobileCartVisible()) {
+    <div class="fixed inset-0 bg-black/70 z-50 lg:hidden" (click)="closeMobileCart()">
+      <div class="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-gray-900 rounded-t-2xl shadow-2xl flex flex-col animate-slide-in-up" (click)="$event.stopPropagation()">
+        
+        <div class="flex justify-between items-center p-4 border-b border-gray-700 flex-shrink-0">
+          <h2 class="text-2xl font-bold text-white">Your Order</h2>
+          <button (click)="closeMobileCart()" class="text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6 flex-grow overflow-y-auto">
+          <div class="flex-shrink-0">
+            @if (cart().length === 0) {
+              <div class="flex flex-col items-center justify-center text-gray-500 p-8 rounded-lg bg-gray-800">
+                <p class="text-lg">Your cart is empty.</p>
+              </div>
+            } @else {
+              <ul class="space-y-4">
+                @for (item of cart(); track item.id) {
+                  <li class="flex items-center space-x-4 bg-gray-800 p-3 rounded-lg">
+                    <img [src]="item.imageUrl" alt="{{item.name}}" class="w-16 h-16 rounded-md object-cover">
+                    <div class="flex-1">
+                      <p class="font-semibold text-white">{{ item.name }}</p>
+                      <p class="text-sm text-indigo-400">${{ item.price.toFixed(2) }}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-gray-700 rounded-full">
+                      <button (click)="updateQuantity(item.id, -1)" class="p-1 text-gray-300"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.75 9.25a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" /></svg></button>
+                      <span class="px-2 font-bold text-white">{{ item.quantity }}</span>
+                      <button (click)="updateQuantity(item.id, 1)" class="p-1 text-gray-300"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg></button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-gray-700">
+            <h2 class="text-xl font-bold text-white mb-4">Order History</h2>
+            @if (orderHistory().length === 0) {
+              <div class="flex flex-col items-center justify-center text-gray-500 text-center py-8">
+                <svg class="w-16 h-16 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                <p>Your past orders will appear here.</p>
+              </div>
+            } @else {
+              <ul class="space-y-4">
+                @for (order of orderHistory(); track order.id) {
+                  <li class="bg-gray-800 p-4 rounded-lg animate-fade-in">
+                    <div class="flex justify-between items-center mb-2">
+                      <span class="font-semibold text-white text-sm">{{ formatDate(order.date) }}</span>
+                      <span class="font-bold text-indigo-400">${{ order.total.toFixed(2) }}</span>
+                    </div>
+                    <ul class="ml-4 mt-2 space-y-1 border-l border-gray-700 pl-4">
+                      @for(item of order.items; track item.id) {
+                        <li class="text-sm text-gray-400">
+                          <span class="font-semibold text-gray-300">{{ item.quantity }}x</span> {{ item.name }}
+                        </li>
+                      }
+                    </ul>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+        
+        @if (cart().length > 0) {
+          <div class="p-6 border-t border-gray-700 flex-shrink-0 bg-gray-900">
+            <div class="flex justify-between items-center text-gray-300 mb-2">
+              <span>Subtotal</span>
+              <span>${{ cartTotal().toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-300 mb-4">
+              <span>Taxes & Fees (10%)</span>
+              <span>${{ (cartTotal() * 0.1).toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-white font-bold text-xl mb-4">
+              <span>Total</span>
+              <span>${{ (cartTotal() * 1.1).toFixed(2) }}</span>
+            </div>
+            <button (click)="placeOrder()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg text-lg">
+              Place Order
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="fixed top-4 inset-x-4 lg:inset-x-auto lg:bottom-4 lg:right-[29rem] lg:top-auto lg:w-96 z-[60] flex flex-col gap-3">
+      @for (notification of notifications(); track notification.id) {
+        <div class="bg-gray-800 border border-gray-700 shadow-2xl rounded-lg p-4 flex items-center gap-3 w-full animate-slide-in-top lg:animate-fade-in-right">
+          
+          @if (notification.icon === 'cart') {
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.51 0 .962.343 1.087.835l.383 1.437M7.5 14.25V5.106c0-.612.501-1.106 1.106-1.106h5.788c.612 0 1.106.501 1.106 1.106v9.144M7.5 14.25h1.875a3 3 0 0 1 3-3h.375a3 3 0 0 1 3 3h-1.875" />
+              </svg>
+            </div>
+          } 
+          
+          @else if (notification.icon === 'check') {
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+          }
+
+          @else if (notification.icon === 'error') {
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+            </div>
+          }
+          
+          <p class="text-gray-200 text-sm font-medium">{{ notification.message }}</p>
+        </div>
+      }
+  </div>
+
+</div>
